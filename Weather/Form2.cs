@@ -16,12 +16,12 @@ namespace Weather
             _location = new Location();
             if (!Properties.Settings.Default.cb.Equals(""))
             {
-                comboBox1.Items.Add(Properties.Settings.Default.cb);
+                cities.Items.Add(Properties.Settings.Default.cb);
             }
 
-            if (Settings.s_SelectedLocation.Equals("")) comboBox1.SelectedIndex = 0;
+            if (Settings.s_SelectedLocation.Equals("")) cities.SelectedIndex = 0;
 
-            comboBox1.SelectedItem = Settings.s_SelectedLocation;
+            cities.SelectedItem = Settings.s_SelectedLocation;
 
             if (Settings.isCelsius) temperatureUnits.SelectedItem = "Celsius";
             else temperatureUnits.SelectedItem = "Fahrenheit";
@@ -30,14 +30,14 @@ namespace Weather
             else windUnits.SelectedItem = "miles";
         }
 
-        private void button1_Click(object sender, System.EventArgs e)
+        private void geo_Click(object sender, System.EventArgs e)
         {
-            _location.Find(comboBox1);
+            _location.Find(cities);
         }
 
-        private void comboBox1_SelectedIndexChanged(object sender, System.EventArgs e)
+        private void cities_SelectedIndexChanged(object sender, System.EventArgs e)
         {
-            Settings.s_SelectedLocation = comboBox1.SelectedItem.ToString();
+            Settings.s_SelectedLocation = cities.SelectedItem.ToString();
         }
 
         private void temperatureUnits_SelectedIndexChanged(object sender, System.EventArgs e)

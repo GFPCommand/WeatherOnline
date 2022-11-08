@@ -11,14 +11,16 @@ namespace Weather
 
         private AnimationUI _uiAnim;
 
+        private WeatherManager _weatherManager;
+
         private Panel[] _daySmallInfo;
-        private PictureBox[] _weatherPictures;
         private Label[] _daysLabels;
         private Label[] _temperatureLabels;
         private Label[] _feelTemperatureLabels;
         private Label[] _windLabels;
         private Label[] _humidityLabels;
         private Label[] _pressureLabels;
+        private PictureBox[] _weatherPictures;
 
         private Panel _sliderPanel;
         private Button _controlButton;
@@ -32,6 +34,8 @@ namespace Weather
             InitializeComponent();
 
             _uiAnim = new AnimationUI();
+
+            _weatherManager = new WeatherManager();
 
             _daySmallInfo = new Panel[7];
 
@@ -49,6 +53,8 @@ namespace Weather
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            _weatherManager.GetWeatherFromServer();
+
             int posX = 90;
             int diffX = 140;
             for (int i = 0; i < _daySmallInfo.Length; i++)
@@ -154,6 +160,13 @@ namespace Weather
 
             _controlButton.MouseClick += controlButton_MouseClick;
             _settingsButton.MouseClick += settingsButton_MouseClick;
+
+            temperatureLabel.Text = $"Temperature: {_weatherManager.Temperature}";
+            feelTemperatureLabel.Text = $"Feel Temperature: {_weatherManager.Feel}";
+            windLabel.Text = $"Wind: {_weatherManager.Wind}";
+            humidityLabel.Text = $"Humidity: {_weatherManager.Humidity}";
+            pressureLabel.Text = $"Pressure: {_weatherManager.Pressure}";
+
         }
 
         private void settingsButton_MouseClick(object sender, MouseEventArgs e)

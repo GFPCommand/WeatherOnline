@@ -43,6 +43,8 @@ namespace Weather
             list.Items.Add(coordinate.ToString());
 
             Properties.Settings.Default.cb = list.SelectedItem.ToString();
+
+            Properties.Settings.Default.Save();
         }
     }
 }
