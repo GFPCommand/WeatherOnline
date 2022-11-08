@@ -30,7 +30,7 @@ namespace Weather
                 list.Items.Add(_defaulLocation);
                 list.SelectedItem = _defaulLocation;
 
-                LocationSettings.s_SelectedLocation = _defaulLocation;
+                Settings.s_SelectedLocation = _defaulLocation;
 
                 Properties.Settings.Default.cb = list.SelectedItem.ToString();
                 Properties.Settings.Default.Save();

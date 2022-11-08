@@ -19,7 +19,15 @@ namespace Weather
                 comboBox1.Items.Add(Properties.Settings.Default.cb);
             }
 
-            comboBox1.SelectedItem = LocationSettings.s_SelectedLocation;
+            if (Settings.s_SelectedLocation.Equals("")) comboBox1.SelectedIndex = 0;
+
+            comboBox1.SelectedItem = Settings.s_SelectedLocation;
+
+            if (Settings.isCelsius) temperatureUnits.SelectedItem = "Celsius";
+            else temperatureUnits.SelectedItem = "Fahrenheit";
+
+            if (Settings.isMetersSeconds) windUnits.SelectedItem = "meters";
+            else windUnits.SelectedItem = "miles";
         }
 
         private void button1_Click(object sender, System.EventArgs e)
@@ -29,7 +37,17 @@ namespace Weather
 
         private void comboBox1_SelectedIndexChanged(object sender, System.EventArgs e)
         {
-            LocationSettings.s_SelectedLocation = comboBox1.SelectedItem.ToString();
+            Settings.s_SelectedLocation = comboBox1.SelectedItem.ToString();
+        }
+
+        private void temperatureUnits_SelectedIndexChanged(object sender, System.EventArgs e)
+        {
+            Settings.isCelsius = (string)temperatureUnits.SelectedItem == "Celsius";
+        }
+
+        private void windUnits_SelectedIndexChanged(object sender, System.EventArgs e)
+        {
+            Settings.isMetersSeconds = (string)windUnits.SelectedItem == "meters";
         }
     }
 }
