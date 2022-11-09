@@ -51,18 +51,18 @@ namespace Weather
             _defaultFont = new Font(_fontName, 12f);
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
             _weatherManager.GetWeatherFromServer();
 
             int posX = 90;
-            int diffX = 140;
+            int diffX = 160;
             for (int i = 0; i < _daySmallInfo.Length; i++)
             {
                 _daySmallInfo[i] = new Panel
                 {
                     Location = new Point(posX, 250),
-                    Size = new Size(130, 200),
+                    Size = new Size(150, 200),
                     BackColor = Color.White,
                 };
 
@@ -167,6 +167,36 @@ namespace Weather
             humidityLabel.Text = $"Humidity: {_weatherManager.Humidity}";
             pressureLabel.Text = $"Pressure: {_weatherManager.Pressure}";
 
+            aboutLocation.Text += Settings.s_SelectedLocation;
+
+            switch (_weatherManager.WeatherType)
+            {
+                case "Ясная погода, дымка":
+                    mainPic.BackgroundImage = Resources.clear;
+                    break;
+                case "Облачно":
+                    mainPic.BackgroundImage = Resources.cloudy;
+                    break;
+                case "Малооблачно, кучевые облака":
+                    mainPic.BackgroundImage = Resources.cloudy;
+                    break;
+                case "Пасмурно":
+                    mainPic.BackgroundImage = Resources.too_cloudy;
+                    break;
+                case "Пасмурно, дождь":
+                    mainPic.BackgroundImage = Resources.rainy;
+                    break;
+                case "Пасмурно, небольшой дождь":
+                    mainPic.BackgroundImage = Resources.rainy;
+                    break;
+                case "Пасмурно, ливневый дождь":
+                    mainPic.BackgroundImage = Resources.rainy;
+                    break;
+                default:
+                    break;
+            }
+
+            await _uiAnim.UpDownSliderAsync(mainPic);
         }
 
         private void settingsButton_MouseClick(object sender, MouseEventArgs e)

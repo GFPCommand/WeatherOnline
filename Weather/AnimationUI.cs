@@ -69,5 +69,40 @@ namespace Weather
                 _isOpen = true;
             }
         }
+
+        public async Task UpDownSliderAsync(object formObj)
+        {
+            int coeff = 1;
+
+            int delay = 25;
+
+            int maxVal, minVal;
+
+            if (formObj is Control == false || formObj == null)
+            {
+                MessageBox.Show("Object not a Control element");
+
+                return;
+            }
+
+            Control elem = formObj as Control;
+
+            minVal = 0;
+            maxVal = elem.Height/10;
+
+            while (true)
+            {
+                while(elem.Location.Y < maxVal) {
+                    elem.Location = new Point(0, elem.Location.Y + coeff);
+                    await Task.Delay(delay);
+                }
+
+                while (elem.Location.Y > minVal)
+                {
+                    elem.Location = new Point(0, elem.Location.Y - coeff);
+                    await Task.Delay(delay);
+                }
+            }
+        }
     }
 }

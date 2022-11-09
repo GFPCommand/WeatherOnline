@@ -47,9 +47,9 @@
             this.aboutLocation.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.aboutLocation.Location = new System.Drawing.Point(400, 10);
             this.aboutLocation.Name = "aboutLocation";
-            this.aboutLocation.Size = new System.Drawing.Size(144, 31);
+            this.aboutLocation.Size = new System.Drawing.Size(151, 31);
             this.aboutLocation.TabIndex = 0;
-            this.aboutLocation.Text = "Weather in";
+            this.aboutLocation.Text = "Weather in ";
             // 
             // panel1
             // 
@@ -129,7 +129,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1084, 611);
+            this.ClientSize = new System.Drawing.Size(1224, 611);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.aboutLocation);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
