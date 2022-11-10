@@ -6,9 +6,20 @@ namespace Weather
     {
         private Location _location;
 
-        public SettingsForm()
+        private Form1 form;
+
+        private string _cityLocal;
+
+        private bool _isCelsiusLocal;
+        private bool _isMetersLocal;
+
+        private string _windSymbolLocal, _temperatureSymbolLocal;
+
+        public SettingsForm(Form1 mainForm)
         {
             InitializeComponent();
+
+            form = mainForm;
         }
 
         private void SettingsForm_Load(object sender, System.EventArgs e)
@@ -37,17 +48,39 @@ namespace Weather
 
         private void cities_SelectedIndexChanged(object sender, System.EventArgs e)
         {
-            Settings.s_SelectedLocation = cities.SelectedItem.ToString();
+            _cityLocal = cities.SelectedItem.ToString();
         }
 
         private void temperatureUnits_SelectedIndexChanged(object sender, System.EventArgs e)
         {
-            Settings.isCelsius = (string)temperatureUnits.SelectedItem == "Celsius";
+            _isCelsiusLocal = temperatureUnits.SelectedItem.Equals("Celsius");
+            _temperatureSymbolLocal = _isCelsiusLocal ? "°C" : "°F";
         }
 
         private void windUnits_SelectedIndexChanged(object sender, System.EventArgs e)
         {
-            Settings.isMetersSeconds = (string)windUnits.SelectedItem == "meters";
+            _isMetersLocal = windUnits.SelectedItem.Equals("meters");
+            _windSymbolLocal = _isMetersLocal ? "m\\s" : "miles\\s";
+        }
+
+        private void saveButton_Click(object sender, System.EventArgs e)
+        {
+            Settings.isCelsius = _isCelsiusLocal;
+            Settings.isMetersSeconds = _isMetersLocal;
+
+            Settings.s_SelectedLocation = _cityLocal;
+
+            Settings.s_TempSymbol = _temperatureSymbolLocal;
+            Settings.s_WindSymbol = _windSymbolLocal;
+
+            form.SetWeather();
+
+            Close();
+        }
+
+        private void cancelButton_Click(object sender, System.EventArgs e)
+        {
+            Close();
         }
     }
 }

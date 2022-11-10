@@ -53,8 +53,6 @@ namespace Weather
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-            _weatherManager.GetWeatherFromServer();
-
             int posX = 90;
             int diffX = 160;
             for (int i = 0; i < _daySmallInfo.Length; i++)
@@ -161,13 +159,33 @@ namespace Weather
             _controlButton.MouseClick += controlButton_MouseClick;
             _settingsButton.MouseClick += settingsButton_MouseClick;
 
+            SetWeather();
+
+            await _uiAnim.UpDownSliderAsync(mainPic);
+        }
+
+        private void settingsButton_MouseClick(object sender, MouseEventArgs e)
+        {
+            _settingsForm = new SettingsForm(this);
+            _settingsForm.Show();
+        }
+
+        private async void controlButton_MouseClick(object sender, EventArgs e)
+        {
+            await _uiAnim.SliderAnimationAsync(_sliderPanel, new Button[2] {_controlButton, _settingsButton});
+        }
+
+        public void SetWeather()
+        {
+            _weatherManager.GetWeekWeatherFromServer();
+
             temperatureLabel.Text = $"Temperature: {_weatherManager.Temperature}";
             feelTemperatureLabel.Text = $"Feel Temperature: {_weatherManager.Feel}";
             windLabel.Text = $"Wind: {_weatherManager.Wind}";
             humidityLabel.Text = $"Humidity: {_weatherManager.Humidity}";
             pressureLabel.Text = $"Pressure: {_weatherManager.Pressure}";
 
-            aboutLocation.Text += Settings.s_SelectedLocation;
+            aboutLocation.Text = $"Weather in {Settings.s_SelectedLocation}";
 
             switch (_weatherManager.WeatherType)
             {
@@ -195,19 +213,6 @@ namespace Weather
                 default:
                     break;
             }
-
-            await _uiAnim.UpDownSliderAsync(mainPic);
-        }
-
-        private void settingsButton_MouseClick(object sender, MouseEventArgs e)
-        {
-            _settingsForm = new SettingsForm();
-            _settingsForm.Show();
-        }
-
-        private async void controlButton_MouseClick(object sender, EventArgs e)
-        {
-            await _uiAnim.SliderAnimationAsync(_sliderPanel, new Button[2] {_controlButton, _settingsButton});
         }
     }
 }

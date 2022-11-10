@@ -58,7 +58,7 @@ namespace Weather
 
                     if (sliderPanel.Width >= 100 && !isDone)
                     {
-                        sliderButtons[0].Text = "Menu";
+                        sliderButtons[0].Text = "Week weather";
                         sliderButtons[1].Text = "Settings";
                         isDone = true;
                     }

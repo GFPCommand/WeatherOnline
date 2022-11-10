@@ -6,11 +6,13 @@ namespace Weather
 {
     class WeatherManager
     {
-        private string _commonLink = "https://client.meteoservice.ru/export/daily/309e5a304823303c3c0c574342a743aa/point/";
+        private const string CommonLink = "https://client.meteoservice.ru/export/daily/309e5a304823303c3c0c574342a743aa/point/";
         private const string VLG_LINK_XML_ID = "5358.xml";
         private const string LED_LINK_XML_ID = "5357.xml";
         private const string AER_LINK_XML_ID = "5356.xml";
         private const string MOW_LINK_XML_ID = "5355.xml";
+
+        private string result = "";
 
         private const string N = "N";
         private const string S = "S";
@@ -34,7 +36,11 @@ namespace Weather
         private int _minPressure;
         private int _maxPressure;
 
-        public WeatherManager() { }
+        DataSet ds;
+
+        public WeatherManager() {
+            
+        }
 
         public string Temperature { get; private set; }
         public string Feel { get; private set; }
@@ -43,7 +49,7 @@ namespace Weather
         public string Pressure { get; private set; }
         public string WeatherType { get; private set; }
 
-        public void GetWeatherFromServer()
+        public void GetWeekWeatherFromServer()
         {
             string temperature_symbol = Settings.s_TempSymbol;
             string wind_symbol = Settings.s_WindSymbol;
@@ -51,16 +57,16 @@ namespace Weather
             switch (Settings.s_SelectedLocation)
             {
                 case "Volgograd":
-                    _commonLink += VLG_LINK_XML_ID;
+                    result = $"{CommonLink}{VLG_LINK_XML_ID}";
                     break;
                 case "Moscow":
-                    _commonLink = MOW_LINK_XML_ID;
+                    result = $"{CommonLink}{MOW_LINK_XML_ID}";
                     break;
                 case "Saint-Petersburg":
-                    _commonLink += LED_LINK_XML_ID;
+                    result = $"{CommonLink}{LED_LINK_XML_ID}";
                     break;
                 case "Sochi":
-                    _commonLink += AER_LINK_XML_ID;
+                    result = $"{CommonLink}{AER_LINK_XML_ID}";
                     break;
                 default:
                     break;
@@ -68,11 +74,8 @@ namespace Weather
 
             try
             {
-                DataSet ds = new DataSet();
-
-                ds.Clear();
-
-                ds.ReadXml(_commonLink);
+                ds = new DataSet();
+                ds.ReadXml(result);
 
                 switch (int.Parse(ds.Tables[2].Rows[0][8].ToString().Replace('.', ',')))
                 {
@@ -110,11 +113,29 @@ namespace Weather
                 _minTemp = float.Parse(ds.Tables[2].Rows[0][3].ToString().Replace('.', ','));
                 _maxTemp = float.Parse(ds.Tables[2].Rows[1][4].ToString().Replace('.', ','));
 
+                if (!Settings.isCelsius)
+                {
+                    _minTemp = _minTemp * 1.8f + 32;
+                    _maxTemp = _maxTemp * 1.8f + 32;
+                }
+
                 _minFeelTemp = float.Parse(ds.Tables[2].Rows[0][16].ToString().Replace('.', ','));
                 _maxFeelTemp = float.Parse(ds.Tables[2].Rows[1][17].ToString().Replace('.', ','));
 
+                if (!Settings.isCelsius)
+                {
+                    _minFeelTemp = _minTemp * 1.8f + 32;
+                    _maxFeelTemp = _maxTemp * 1.8f + 32;
+                }
+
                 _minWindSpeed = float.Parse(ds.Tables[2].Rows[0][5].ToString().Replace('.', ','));
                 _maxWindSpeed = float.Parse(ds.Tables[2].Rows[1][6].ToString().Replace('.', ','));
+
+                if (!Settings.isMetersSeconds)
+                {
+                    _minWindSpeed = _minWindSpeed * 0.000621371192237334f;
+                    _maxWindSpeed = _maxWindSpeed * 0.000621371192237334f;
+                }
 
                 _minHumidity = int.Parse(ds.Tables[2].Rows[0][14].ToString().Replace('.', ','));
                 _maxHumidity = int.Parse(ds.Tables[2].Rows[1][15].ToString().Replace('.', ','));

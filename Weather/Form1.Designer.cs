@@ -47,9 +47,9 @@
             this.aboutLocation.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.aboutLocation.Location = new System.Drawing.Point(400, 10);
             this.aboutLocation.Name = "aboutLocation";
-            this.aboutLocation.Size = new System.Drawing.Size(151, 31);
+            this.aboutLocation.Size = new System.Drawing.Size(158, 31);
             this.aboutLocation.TabIndex = 0;
-            this.aboutLocation.Text = "Weather in ";
+            this.aboutLocation.Text = "Weather in  ";
             // 
             // panel1
             // 
