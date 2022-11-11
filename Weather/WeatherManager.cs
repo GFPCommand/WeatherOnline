@@ -14,6 +14,8 @@ namespace Weather
 
         private string result = "";
 
+        private const float MetersToMilesCoefficient = 0.000621371192237334f;
+
         private const string N = "N";
         private const string S = "S";
         private const string W = "W";
@@ -38,9 +40,7 @@ namespace Weather
 
         DataSet ds;
 
-        public WeatherManager() {
-            
-        }
+        public WeatherManager() { }
 
         public string Temperature { get; private set; }
         public string Feel { get; private set; }
@@ -49,7 +49,7 @@ namespace Weather
         public string Pressure { get; private set; }
         public string WeatherType { get; private set; }
 
-        public void GetWeekWeatherFromServer()
+        public void GetWeatherFromServer()
         {
             string temperature_symbol = Settings.s_TempSymbol;
             string wind_symbol = Settings.s_WindSymbol;
@@ -133,8 +133,8 @@ namespace Weather
 
                 if (!Settings.isMetersSeconds)
                 {
-                    _minWindSpeed = _minWindSpeed * 0.000621371192237334f;
-                    _maxWindSpeed = _maxWindSpeed * 0.000621371192237334f;
+                    _minWindSpeed = _minWindSpeed * MetersToMilesCoefficient;
+                    _maxWindSpeed = _maxWindSpeed * MetersToMilesCoefficient;
                 }
 
                 _minHumidity = int.Parse(ds.Tables[2].Rows[0][14].ToString().Replace('.', ','));
@@ -143,8 +143,8 @@ namespace Weather
                 _minPressure = int.Parse(ds.Tables[2].Rows[0][12].ToString().Replace('.',','));
                 _maxPressure = int.Parse(ds.Tables[2].Rows[1][13].ToString().Replace('.',','));
 
-                Temperature = $"{Math.Round(_minTemp)}{temperature_symbol}/{Math.Round(_maxTemp)}{temperature_symbol}".Replace(',', '.');
-                Feel = $"{Math.Round(_minFeelTemp)} {temperature_symbol} / {Math.Round(_maxFeelTemp)}{temperature_symbol}".Replace(',', '.');
+                Temperature = $"{Math.Round(_minTemp)}/{Math.Round(_maxTemp)}{temperature_symbol}".Replace(',', '.');
+                Feel = $"{Math.Round(_minFeelTemp)}/{Math.Round(_maxFeelTemp)}{temperature_symbol}".Replace(',', '.');
                 Wind = $"{Math.Round(_minWindSpeed)}/{Math.Round(_maxWindSpeed)} {wind_symbol} {_windDirection}";
                 Humidity = $"{_minHumidity}/{_maxHumidity} %";
                 Pressure = $"{_minPressure}/{_maxPressure} mmHg";

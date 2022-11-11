@@ -48,19 +48,19 @@ namespace Weather
             _pressureLabels        = new Label[7];
 
             _fontName = DefaultFont.Name;
-            _defaultFont = new Font(_fontName, 12f);
+            _defaultFont = new Font(_fontName, 11f);
         }
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-            int posX = 90;
+            int posX = 80;
             int diffX = 160;
             for (int i = 0; i < _daySmallInfo.Length; i++)
             {
                 _daySmallInfo[i] = new Panel
                 {
                     Location = new Point(posX, 250),
-                    Size = new Size(150, 200),
+                    Size = new Size(150, 240),
                     BackColor = Color.White,
                 };
 
@@ -76,7 +76,7 @@ namespace Weather
                 _daysLabels[i] = new Label {
                     Parent = _daySmallInfo[i],
                     Text = $"{DateTime.Now.Day + i}.{DateTime.Now.Month}",
-                    Location = new Point(65, 25),
+                    Location = new Point(70, 25),
                     Font = new Font(_fontName, 14f)
                 };
 
@@ -84,40 +84,50 @@ namespace Weather
                 {
                     Parent = _daySmallInfo[i],
                     Text = "Temperature: ",
-                    Location = new Point(10, 65),
-                    Font = _defaultFont
+                    Location = new Point(5, 70),
+                    Font = _defaultFont,
+                    AutoSize = false,
+                    Size = new Size(140, 15)
                 };
 
                 _feelTemperatureLabels[i] = new Label
                 {
                     Parent = _daySmallInfo[i],
                     Text = "Feel temp: ",
-                    Location = new Point(10, 90),
-                    Font = _defaultFont
+                    Location = new Point(5, 100),
+                    Font = _defaultFont,
+                    AutoSize = false,
+                    Size = new Size(140, 15)
                 };
 
                 _windLabels[i] = new Label
                 {
                     Parent = _daySmallInfo[i],
                     Text = "Wind: ",
-                    Location = new Point(10, 115),
-                    Font = _defaultFont
+                    Location = new Point(5, 130),
+                    Font = _defaultFont,
+                    AutoSize = false,
+                    Size = new Size(140, 15)
                 };
 
                 _humidityLabels[i] = new Label
                 {
                     Parent = _daySmallInfo[i],
                     Text = "Humidity: ",
-                    Location = new Point(10, 140),
-                    Font = _defaultFont
+                    Location = new Point(5, 160),
+                    Font = _defaultFont,
+                    AutoSize = false,
+                    Size = new Size(140, 15)
                 };
 
                 _pressureLabels[i] = new Label
                 {
                     Parent = _daySmallInfo[i],
                     Text = "Pressure: ",
-                    Location = new Point(10, 165),
-                    Font = _defaultFont
+                    Location = new Point(5, 190),
+                    Font = _defaultFont,
+                    AutoSize = false,
+                    Size = new Size(140, 15)
                 };
 
                 Controls.Add(_daySmallInfo[i]);
@@ -177,7 +187,9 @@ namespace Weather
 
         public void SetWeather()
         {
-            _weatherManager.GetWeekWeatherFromServer();
+            _weatherManager.GetWeatherFromServer();
+
+            aboutLocation.Text = $"Weather in {Settings.s_SelectedLocation}";
 
             temperatureLabel.Text = $"Temperature: {_weatherManager.Temperature}";
             feelTemperatureLabel.Text = $"Feel Temperature: {_weatherManager.Feel}";
@@ -185,7 +197,14 @@ namespace Weather
             humidityLabel.Text = $"Humidity: {_weatherManager.Humidity}";
             pressureLabel.Text = $"Pressure: {_weatherManager.Pressure}";
 
-            aboutLocation.Text = $"Weather in {Settings.s_SelectedLocation}";
+            for (int i = 0; i < _daySmallInfo.Length; i++)
+            {
+                _temperatureLabels[i].Text = $"t: {_weatherManager.Temperature}";
+                _feelTemperatureLabels[i].Text = $"Feel: {_weatherManager.Feel}";
+                _windLabels[i].Text = $"Wind: {_weatherManager.Wind}";
+                _humidityLabels[i].Text = $"Hum: {_weatherManager.Humidity}";
+                _pressureLabels[i].Text = $"Press: {_weatherManager.Pressure}";
+            }
 
             switch (_weatherManager.WeatherType)
             {
