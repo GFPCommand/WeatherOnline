@@ -23,11 +23,16 @@ namespace Weather
         private PictureBox[] _weatherPictures;
 
         private Panel _sliderPanel;
+
         private Button _controlButton;
         private Button _settingsButton;
+        private Button _weekTemperatureButton;
+        private Button _currentTemperatureButton;
 
         private readonly string _fontName;
         private readonly Font _defaultFont;
+
+        public int State { get; private set; }
 
         public Form1()
         {
@@ -59,7 +64,7 @@ namespace Weather
             {
                 _daySmallInfo[i] = new Panel
                 {
-                    Location = new Point(posX, 250),
+                    Location = new Point(posX, 280),
                     Size = new Size(150, 240),
                     BackColor = Color.White,
                 };
@@ -161,15 +166,37 @@ namespace Weather
                 Font = new Font(DefaultFont.Name, 16f)
             };
 
+            _weekTemperatureButton = new Button
+            {
+                Location = new Point(0, 60),
+                Size = new Size(60, 60),
+                BackgroundImageLayout = ImageLayout.Stretch,
+                Font = new Font(DefaultFont.Name, 16f)
+            };
+
+            _currentTemperatureButton = new Button
+            {
+                Location = new Point(0, 120),
+                Size = new Size(60, 60),
+                BackgroundImageLayout = ImageLayout.Stretch,
+                Font = new Font(DefaultFont.Name, 16f)
+            };
+
             _sliderPanel.BringToFront();
 
             _sliderPanel.Controls.Add(_controlButton);
             _sliderPanel.Controls.Add(_settingsButton);
+            _sliderPanel.Controls.Add(_weekTemperatureButton);
+            _sliderPanel.Controls.Add(_currentTemperatureButton);
 
             _controlButton.MouseClick += controlButton_MouseClick;
             _settingsButton.MouseClick += settingsButton_MouseClick;
+            _weekTemperatureButton.MouseClick += WeekWeather_MouseClick;
+            _currentTemperatureButton.MouseClick += CurrentWeather_MouseClick;
 
-            SetWeather();
+            SetWeekWeather();
+
+            State = (int)Settings.WeatherWindowState.Week;
 
             await _uiAnim.UpDownSliderAsync(mainPic);
         }
@@ -182,12 +209,40 @@ namespace Weather
 
         private async void controlButton_MouseClick(object sender, EventArgs e)
         {
-            await _uiAnim.SliderAnimationAsync(_sliderPanel, new Button[2] {_controlButton, _settingsButton});
+            await _uiAnim.SliderAnimationAsync(_sliderPanel, _controlButton, _settingsButton, _weekTemperatureButton, _currentTemperatureButton);
         }
 
-        public void SetWeather()
+        private void WeekWeather_MouseClick(object sender, MouseEventArgs e)
         {
-            _weatherManager.GetWeatherFromServer();
+            if (State == (int)Settings.WeatherWindowState.Week) return;
+
+            State = (int)Settings.WeatherWindowState.Week;
+
+            for (int i = 0; i < _daySmallInfo.Length; i++)
+            {
+                _daySmallInfo[i].Visible = true;
+            }
+
+            SetWeekWeather();
+        }
+
+        private void CurrentWeather_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (State == (int)Settings.WeatherWindowState.Current) return;
+
+            State = (int)Settings.WeatherWindowState.Current;
+
+            for (int i = 0; i < _daySmallInfo.Length; i++)
+            {
+                _daySmallInfo[i].Visible = false;
+            }
+
+            SetCurrentWeather();
+        }
+
+        public void SetWeekWeather()
+        {
+            _weatherManager.GetWeekWeatherFromServer();
 
             aboutLocation.Text = $"Weather in {Settings.s_SelectedLocation}";
 
@@ -199,38 +254,67 @@ namespace Weather
 
             for (int i = 0; i < _daySmallInfo.Length; i++)
             {
-                _temperatureLabels[i].Text = $"t: {_weatherManager.Temperature}";
+                _temperatureLabels[i].Text = $"T: {_weatherManager.Temperature}";
                 _feelTemperatureLabels[i].Text = $"Feel: {_weatherManager.Feel}";
                 _windLabels[i].Text = $"Wind: {_weatherManager.Wind}";
                 _humidityLabels[i].Text = $"Hum: {_weatherManager.Humidity}";
                 _pressureLabels[i].Text = $"Press: {_weatherManager.Pressure}";
             }
 
+            mainPic.BackgroundImage = ImageWeatherType();
+        }
+
+        public void SetCurrentWeather()
+        {
+            _weatherManager.GetCurrentWeatherFromServer();
+
+            temperatureLabel.Text = $"Temperature: {_weatherManager.Temperature}";
+            feelTemperatureLabel.Text = $"Feel Temperature: {_weatherManager.Feel}";
+            windLabel.Text = $"Wind: {_weatherManager.Wind}";
+            humidityLabel.Text = $"Humidity: {_weatherManager.Humidity}";
+            pressureLabel.Text = $"Pressure: {_weatherManager.Pressure}";
+
+            mainPic.BackgroundImage = ImageWeatherType();
+        }
+
+        private Image ImageWeatherType()
+        {
             switch (_weatherManager.WeatherType)
             {
+                case "Ясно":
+                    return _ = Resources.clear;
                 case "Ясная погода, дымка":
-                    mainPic.BackgroundImage = Resources.clear;
-                    break;
+                    return _ = Resources.clear;
                 case "Облачно":
-                    mainPic.BackgroundImage = Resources.cloudy;
-                    break;
+                    return _ = Resources.cloudy;
                 case "Малооблачно, кучевые облака":
-                    mainPic.BackgroundImage = Resources.cloudy;
-                    break;
+                    return _ = Resources.cloudy;
+                case "Переменная облачность":
+                    return _ = Resources.cloudy;
+                case "Сплошная облачность с просветами":
+                    return _ = Resources.cloudy;
+                case "Туман или низкая облачность":
+                    return _ = Resources.cloudy;
                 case "Пасмурно":
-                    mainPic.BackgroundImage = Resources.too_cloudy;
-                    break;
+                    return _ = Resources.too_cloudy;
                 case "Пасмурно, дождь":
-                    mainPic.BackgroundImage = Resources.rainy;
-                    break;
+                    return _ = Resources.rainy;
                 case "Пасмурно, небольшой дождь":
-                    mainPic.BackgroundImage = Resources.rainy;
-                    break;
+                    return _ = Resources.rainy;
                 case "Пасмурно, ливневый дождь":
-                    mainPic.BackgroundImage = Resources.rainy;
-                    break;
+                    return _ = Resources.rainy;
+                case "Дождь":
+                    return _ = Resources.rainy;
+                case "Слабый дождь":
+                    return _ = Resources.rainy;
+                case "Сильный дождь":
+                    return _ = Resources.rainy;
+                case "Ливневый дождь":
+                    return _ = Resources.rainy;
+                case "Пасмурно, небольшой снег":
+                    return _ = Resources.rainy; //snowy --> TODO
                 default:
-                    break;
+                    return null;
             }
         }
     }

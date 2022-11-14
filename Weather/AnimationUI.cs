@@ -11,13 +11,15 @@ namespace Weather
 
         public AnimationUI() { }
 
-        public async Task SliderAnimationAsync(Panel sliderPanel, Button[] sliderButtons)
+        public async Task SliderAnimationAsync(Panel sliderPanel, params Button[] sliderButtons)
         {
-            bool isDone = false;
+            bool isDone;
 
             int width = 200;
 
             int coeff = 5;
+
+            int count = sliderButtons.Length;
 
             if (_isOpen)
             {
@@ -26,13 +28,19 @@ namespace Weather
                 while (sliderPanel.Size.Width > 60)
                 {
                     sliderPanel.Size = new Size(sliderPanel.Width - coeff, sliderPanel.Height);
-                    sliderButtons[0].Size = new Size(sliderButtons[0].Width - coeff, sliderButtons[0].Height);
-                    sliderButtons[1].Size = new Size(sliderButtons[1].Width - coeff, sliderButtons[1].Height);
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        sliderButtons[i].Size = new Size(sliderButtons[i].Width - coeff, sliderButtons[0].Height);
+                    }
 
                     if (sliderPanel.Width <= 100 && !isDone)
                     {
-                        sliderButtons[0].Text = "";
-                        sliderButtons[1].Text = "";
+                        for (int i = 0; i < count; i++)
+                        {
+                            sliderButtons[i].Text = "";
+                        }
+
                         isDone = true;
                     }
 
@@ -47,19 +55,26 @@ namespace Weather
             else
             {
                 isDone = false;
-                sliderButtons[0].BackgroundImage = null;
-                sliderButtons[1].BackgroundImage = null;
+                for (int i = 0; i < count; i++)
+                {
+                    sliderButtons[i].BackgroundImage = null;
+                }
 
                 while (sliderPanel.Size.Width <= width)
                 {
                     sliderPanel.Size = new Size(sliderPanel.Width + coeff, sliderPanel.Height);
-                    sliderButtons[0].Size = new Size(sliderButtons[0].Width + coeff, sliderButtons[0].Height);
-                    sliderButtons[1].Size = new Size(sliderButtons[1].Width + coeff, sliderButtons[1].Height);
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        sliderButtons[i].Size = new Size(sliderButtons[i].Width + coeff, sliderButtons[0].Height);
+                    }
 
                     if (sliderPanel.Width >= 100 && !isDone)
                     {
-                        sliderButtons[0].Text = "Week weather";
+                        sliderButtons[0].Text = "Weather";
                         sliderButtons[1].Text = "Settings";
+                        sliderButtons[2].Text = "Week weather";
+                        sliderButtons[3].Text = "Current weather";
                         isDone = true;
                     }
 

@@ -45,7 +45,7 @@
             // 
             this.aboutLocation.AutoSize = true;
             this.aboutLocation.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.aboutLocation.Location = new System.Drawing.Point(400, 10);
+            this.aboutLocation.Location = new System.Drawing.Point(431, 29);
             this.aboutLocation.Name = "aboutLocation";
             this.aboutLocation.Size = new System.Drawing.Size(158, 31);
             this.aboutLocation.TabIndex = 0;
@@ -59,7 +59,7 @@
             this.panel1.Controls.Add(this.feelTemperatureLabel);
             this.panel1.Controls.Add(this.temperatureLabel);
             this.panel1.Controls.Add(this.mainPic);
-            this.panel1.Location = new System.Drawing.Point(261, 61);
+            this.panel1.Location = new System.Drawing.Point(292, 80);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(602, 176);
             this.panel1.TabIndex = 1;
@@ -129,7 +129,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1224, 611);
+            this.ClientSize = new System.Drawing.Size(1204, 611);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.aboutLocation);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));

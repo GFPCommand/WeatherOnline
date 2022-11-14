@@ -73,7 +73,9 @@ namespace Weather
             Settings.s_TempSymbol = _temperatureSymbolLocal;
             Settings.s_WindSymbol = _windSymbolLocal;
 
-            form.SetWeather();
+            if (form.State == (int)Settings.WeatherWindowState.Week)
+                form.SetWeekWeather();
+            else form.SetCurrentWeather();
 
             Close();
         }
