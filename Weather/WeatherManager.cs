@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Drawing;
 using System.Windows.Forms;
 using static Weather.Settings;
 
@@ -129,21 +130,20 @@ namespace Weather
 
                 ds.ReadXml(result);
 
-                deg = int.Parse(ds.Tables[2].Rows[0][10].ToString().Replace('.', ','));
+                deg = int.Parse(ds.Tables[2].Rows[0][9].ToString().Replace('.', ','));
 
                 SetWindDirection(deg);
 
                 Temperature = $"{Math.Round(float.Parse(ds.Tables[2].Rows[0][2].ToString().Replace('.', ',')))}{temperature_symbol}";
                 Feel = $"{Math.Round(float.Parse(ds.Tables[2].Rows[0][2].ToString().Replace('.', ',')) - float.Parse(ds.Tables[2].Rows[0][7].ToString().Replace('.', ',')))}{temperature_symbol}";
-                Wind = $"{ds.Tables[2].Rows[0][7]}-{ds.Tables[2].Rows[0][8]} {wind_symbol} {_windDirection}";
-                Humidity = $"{ds.Tables[2].Rows[0][11]} %";
+                Wind = $"{ds.Tables[2].Rows[0][7]} {wind_symbol} {_windDirection}";
+                Humidity = $"{ds.Tables[2].Rows[0][10]} %";
                 Pressure = $"{ds.Tables[2].Rows[0][5]} mmHg";
-                WeatherType = $"{ds.Tables[2].Rows[0][28]}";
+                WeatherType = $"{ds.Tables[2].Rows[0][27]}";
             } catch (Exception e)
             {
                 MessageBox.Show(e.Message);
             }
-            
         }
 
         private void SetCity(WeatherWindowState state)

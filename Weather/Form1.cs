@@ -314,6 +314,7 @@ namespace Weather
                 case "Пасмурно, небольшой снег":
                     return _ = Resources.rainy; //snowy --> TODO
                 default:
+                    MessageBox.Show(_weatherManager.WeatherType);
                     return null;
             }
         }
