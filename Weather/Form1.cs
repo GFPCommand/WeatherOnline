@@ -29,6 +29,8 @@ namespace Weather
         private Button _weekTemperatureButton;
         private Button _currentTemperatureButton;
 
+        private Image[] _weatherImages;
+
         private readonly string _fontName;
         private readonly Font _defaultFont;
 
@@ -51,6 +53,8 @@ namespace Weather
             _windLabels            = new Label[7];
             _humidityLabels        = new Label[7];
             _pressureLabels        = new Label[7];
+
+            _weatherImages = new Image[6];
 
             _fontName = DefaultFont.Name;
             _defaultFont = new Font(_fontName, 11f);
@@ -88,7 +92,7 @@ namespace Weather
                 _temperatureLabels[i] = new Label
                 {
                     Parent = _daySmallInfo[i],
-                    Text = "Temperature: ",
+                    Text = "T: ",
                     Location = new Point(5, 70),
                     Font = _defaultFont,
                     AutoSize = false,
@@ -98,7 +102,7 @@ namespace Weather
                 _feelTemperatureLabels[i] = new Label
                 {
                     Parent = _daySmallInfo[i],
-                    Text = "Feel temp: ",
+                    Text = "Feel: ",
                     Location = new Point(5, 100),
                     Font = _defaultFont,
                     AutoSize = false,
@@ -118,7 +122,7 @@ namespace Weather
                 _humidityLabels[i] = new Label
                 {
                     Parent = _daySmallInfo[i],
-                    Text = "Humidity: ",
+                    Text = "Hum: ",
                     Location = new Point(5, 160),
                     Font = _defaultFont,
                     AutoSize = false,
@@ -128,7 +132,7 @@ namespace Weather
                 _pressureLabels[i] = new Label
                 {
                     Parent = _daySmallInfo[i],
-                    Text = "Pressure: ",
+                    Text = "Press: ",
                     Location = new Point(5, 190),
                     Font = _defaultFont,
                     AutoSize = false,
@@ -252,21 +256,34 @@ namespace Weather
             humidityLabel.Text = $"Humidity: {_weatherManager.Humidity}";
             pressureLabel.Text = $"Pressure: {_weatherManager.Pressure}";
 
-            for (int i = 0; i < _daySmallInfo.Length; i++)
+            _temperatureLabels[0].Text = $"T: {_weatherManager.Temperature}";
+            _feelTemperatureLabels[0].Text = $"Feel: {_weatherManager.Feel}";
+            _windLabels[0].Text = $"Wind: {_weatherManager.Wind}";
+            _humidityLabels[0].Text = $"Hum: {_weatherManager.Humidity}";
+            _pressureLabels[0].Text = $"Press: {_weatherManager.Pressure}";
+
+            ImagesWeekWeatherType();
+
+            for (int i = 1; i < _daySmallInfo.Length; i++)
             {
-                _temperatureLabels[i].Text = $"T: {_weatherManager.Temperature}";
-                _feelTemperatureLabels[i].Text = $"Feel: {_weatherManager.Feel}";
-                _windLabels[i].Text = $"Wind: {_weatherManager.Wind}";
-                _humidityLabels[i].Text = $"Hum: {_weatherManager.Humidity}";
-                _pressureLabels[i].Text = $"Press: {_weatherManager.Pressure}";
+                _temperatureLabels[i].Text = $"T: {_weatherManager.WeekTemperature[i - 1]}";
+                _feelTemperatureLabels[i].Text = $"Feel: {_weatherManager.WeekFeel[i - 1]}";
+                _windLabels[i].Text = $"Wind: {_weatherManager.WeekWind[i - 1]}";
+                _humidityLabels[i].Text = $"Hum: {_weatherManager.WeekHumidity[i - 1]}";
+                _pressureLabels[i].Text = $"Press: {_weatherManager.WeekPressure[i - 1]}";
+
+                _weatherPictures[i].BackgroundImage = _weatherImages[i - 1];
             }
 
+            _weatherPictures[0].BackgroundImage = ImageWeatherType();
             mainPic.BackgroundImage = ImageWeatherType();
         }
 
         public void SetCurrentWeather()
         {
             _weatherManager.GetCurrentWeatherFromServer();
+
+            aboutLocation.Text = $"Weather in {Settings.s_SelectedLocation}";
 
             temperatureLabel.Text = $"Temperature: {_weatherManager.Temperature}";
             feelTemperatureLabel.Text = $"Feel Temperature: {_weatherManager.Feel}";
@@ -277,8 +294,58 @@ namespace Weather
             mainPic.BackgroundImage = ImageWeatherType();
         }
 
+        private void ImagesWeekWeatherType()
+        {
+            for (int i = 0; i < _weatherImages.Length; i++)
+            {
+                if (_weatherManager.WeekWeatherType[i].Contains("Дождь") ||
+                _weatherManager.WeekWeatherType[i].Contains("дождь") ||
+                _weatherManager.WeekWeatherType[i].Contains("Морось") ||
+                _weatherManager.WeekWeatherType[i].Contains("морось")) _weatherImages[i] = Resources.rainy;
+
+                switch (_weatherManager.WeekWeatherType[i])
+                {
+                    case "Ясно":
+                        _weatherImages[i] = Resources.clear;
+                        break;
+                    case "Ясная погода, дымка":
+                        _weatherImages[i] = Resources.clear;
+                        break;
+                    case "Облачно":
+                        _weatherImages[i] = Resources.cloudy;
+                        break;
+                    case "Малооблачно, кучевые облака":
+                        _weatherImages[i] = Resources.cloudy;
+                        break;
+                    case "Переменная облачность":
+                        _weatherImages[i] = Resources.cloudy;
+                        break;
+                    case "Сплошная облачность с просветами":
+                        _weatherImages[i] = Resources.cloudy;
+                        break;
+                    case "Сплошная облачность без просветов":
+                        _weatherImages[i] = Resources.too_cloudy;
+                        break;
+                    case "Туман или низкая облачность":
+                        _weatherImages[i] = Resources.cloudy;
+                        break;
+                    case "Дымка":
+                        _weatherImages[i] = Resources.cloudy;
+                        break;
+                    case "Пасмурно":
+                        _weatherImages[i] = Resources.too_cloudy;
+                        break;
+                }
+            }
+        }
+
         private Image ImageWeatherType()
         {
+            if (_weatherManager.WeatherType.Contains("Дождь") ||
+                _weatherManager.WeatherType.Contains("дождь") ||
+                _weatherManager.WeatherType.Contains("Морось") ||
+                _weatherManager.WeatherType.Contains("морось")) return _ = Resources.rainy;
+
             switch (_weatherManager.WeatherType)
             {
                 case "Ясно":
@@ -293,24 +360,14 @@ namespace Weather
                     return _ = Resources.cloudy;
                 case "Сплошная облачность с просветами":
                     return _ = Resources.cloudy;
+                case "Сплошная облачность без просветов":
+                    return _ = Resources.too_cloudy;
                 case "Туман или низкая облачность":
+                    return _ = Resources.cloudy;
+                case "Дымка":
                     return _ = Resources.cloudy;
                 case "Пасмурно":
                     return _ = Resources.too_cloudy;
-                case "Пасмурно, дождь":
-                    return _ = Resources.rainy;
-                case "Пасмурно, небольшой дождь":
-                    return _ = Resources.rainy;
-                case "Пасмурно, ливневый дождь":
-                    return _ = Resources.rainy;
-                case "Дождь":
-                    return _ = Resources.rainy;
-                case "Слабый дождь":
-                    return _ = Resources.rainy;
-                case "Сильный дождь":
-                    return _ = Resources.rainy;
-                case "Ливневый дождь":
-                    return _ = Resources.rainy;
                 case "Пасмурно, небольшой снег":
                     return _ = Resources.rainy; //snowy --> TODO
                 default:
