@@ -7,8 +7,9 @@ namespace Weather
 {
     class WeatherManager
     {
-        private const string CommonWeekLink = "https://client.meteoservice.ru/export/daily/309e5a304823303c3c0c574342a743aa/point/";
-        private const string CommonCurrentLink  = "https://client.meteoservice.ru/export/current/309e5a304823303c3c0c574342a743aa/point/";
+        private const string API_KEY = "309e5a304823303c3c0c574342a743aa";
+        private readonly string CommonWeekLink = $"https://client.meteoservice.ru/export/daily/{API_KEY}/point/";
+        private readonly string CommonCurrentLink = $"https://client.meteoservice.ru/export/current/{API_KEY}/point/";
 
         private const string VLG_LINK_XML_ID = "5358.xml";
         private const string LED_LINK_XML_ID = "5357.xml";
