@@ -303,6 +303,9 @@ namespace Weather
                 _weatherManager.WeekWeatherType[i].Contains("Морось") ||
                 _weatherManager.WeekWeatherType[i].Contains("морось")) _weatherImages[i] = Resources.rainy;
 
+                if (_weatherManager.WeekWeatherType[i].Contains("Снег") ||
+                _weatherManager.WeekWeatherType[i].Contains("снег")) _weatherImages[i] = Resources.snowy;
+
                 switch (_weatherManager.WeekWeatherType[i])
                 {
                     case "Ясно":
@@ -335,6 +338,9 @@ namespace Weather
                     case "Пасмурно":
                         _weatherImages[i] = Resources.too_cloudy;
                         break;
+                    case "Небо без изменений":
+                        _weatherImages[i] = Resources.too_cloudy;
+                        break;
                 }
             }
         }
@@ -345,6 +351,9 @@ namespace Weather
                 _weatherManager.WeatherType.Contains("дождь") ||
                 _weatherManager.WeatherType.Contains("Морось") ||
                 _weatherManager.WeatherType.Contains("морось")) return _ = Resources.rainy;
+
+            if (_weatherManager.WeatherType.Contains("Снег") ||
+                _weatherManager.WeatherType.Contains("снег")) return _ = Resources.snowy;
 
             switch (_weatherManager.WeatherType)
             {
@@ -368,8 +377,8 @@ namespace Weather
                     return _ = Resources.cloudy;
                 case "Пасмурно":
                     return _ = Resources.too_cloudy;
-                case "Пасмурно, небольшой снег":
-                    return _ = Resources.rainy; //snowy --> TODO
+                case "Небо без изменений":
+                    return _ = Resources.too_cloudy;
                 default:
                     MessageBox.Show(_weatherManager.WeatherType);
                     return null;

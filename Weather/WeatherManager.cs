@@ -170,12 +170,13 @@ namespace Weather
 
             int deg = 0;
 
+            double feel = 0;
+
             SetCity(WeatherWindowState.Current);
 
             int diff = s_SelectedLocation.Equals("Volgograd") ? 1 : 0; //coefficient for difference in XML file.
 
-            try
-            {
+            
                 using (DataSet ds = new DataSet())
                 {
                     ds.ReadXml(_link);
@@ -184,17 +185,16 @@ namespace Weather
 
                     SetWindDirection(deg);
 
+                    feel = 13.12f + 0.6215f * double.Parse(ds.Tables[2].Rows[0][2].ToString().Replace('.', ',')) - 11.37f * Math.Pow(1.5f * double.Parse(ds.Tables[2].Rows[0][7].ToString().Replace('.', ',')), 0.16f) + 0.3965 * double.Parse(ds.Tables[2].Rows[0][2].ToString().Replace('.', ',')) * Math.Pow(1.5f * double.Parse(ds.Tables[2].Rows[0][7].ToString().Replace('.', ',')), 0.16f); 
+
                     Temperature = $"{Math.Round(float.Parse(ds.Tables[2].Rows[0][2].ToString().Replace('.', ',')))}{temperature_symbol}";
-                    Feel = $"{Math.Round(float.Parse(ds.Tables[2].Rows[0][2].ToString().Replace('.', ',')) - float.Parse(ds.Tables[2].Rows[0][7].ToString().Replace('.', ',')))}{temperature_symbol}";
+                    Feel = $"{Math.Round(feel)}{temperature_symbol}";
                     Wind = $"{ds.Tables[2].Rows[0][7]} {wind_symbol} {_windDirection}";
                     Humidity = $"{ds.Tables[2].Rows[0][10+diff]} %";
                     Pressure = $"{ds.Tables[2].Rows[0][5]} mmHg";
                     WeatherType = $"{ds.Tables[2].Rows[0][27]}";
                 }                
-            } catch (Exception e)
-            {
-                MessageBox.Show(e.Message);
-            }
+            
         }
 
         private void SetCity(WeatherWindowState state)

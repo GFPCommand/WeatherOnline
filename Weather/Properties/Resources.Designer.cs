@@ -123,6 +123,16 @@ namespace Weather.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap snowy {
+            get {
+                object obj = ResourceManager.GetObject("snowy", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap too_cloudy {
             get {
                 object obj = ResourceManager.GetObject("too_cloudy", resourceCulture);
