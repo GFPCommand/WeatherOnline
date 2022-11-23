@@ -60,7 +60,7 @@ namespace Weather
         private void windUnits_SelectedIndexChanged(object sender, System.EventArgs e)
         {
             _isMetersLocal = windUnits.SelectedItem.Equals("meters");
-            _windSymbolLocal = _isMetersLocal ? "m\\s" : "mile\\s";
+            _windSymbolLocal = _isMetersLocal ? "m\\s" : "mph";
         }
 
         private void saveButton_Click(object sender, System.EventArgs e)
