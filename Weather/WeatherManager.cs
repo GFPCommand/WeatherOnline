@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Data;
 using System.Windows.Forms;
+using System.Xml;
 using static Weather.Settings;
 
 namespace Weather
@@ -16,14 +16,18 @@ namespace Weather
         private const string AER_LINK_XML_ID = "5356.xml";
         private const string MOW_LINK_XML_ID = "5355.xml";
 
+        private const int DAYS = 7;
+
         private string _link = "";
+
+        private XmlDocument _doc = new XmlDocument();
 
         private const float MetersToMilesCoefficient = 0.44704f;
 
-        private const string N = "N";
-        private const string S = "S";
-        private const string W = "W";
-        private const string E = "E";
+        private const string North = "N";
+        private const string South = "S";
+        private const string West = "W";
+        private const string East = "E";
 
         private string _windDirection;
 
@@ -42,7 +46,30 @@ namespace Weather
         private int _minPressure;
         private int _maxPressure;
 
-        public WeatherManager() { }
+        private string _weatherType;
+
+        private string temperature_symbol = s_TempSymbol;
+        private string wind_symbol = s_WindSymbol;
+
+        public WeatherManager() 
+        {
+            Temperature = "";
+            Feel = "";
+            Wind = "";
+            Humidity = "";
+            Pressure = "";
+            WeatherType = "";
+
+            for (int i = 0; i < DAYS; i++)
+            {
+                WeekTemperature[i] = "";
+                WeekFeel[i] = "";
+                WeekWind[i] = "";
+                WeekHumidity[i] = "";
+                WeekPressure[i] = "";
+                WeekWeatherType[i] = "";
+            }
+        }
 
         public string Temperature { get; private set; }
         public string Feel { get; private set; }
@@ -51,153 +78,189 @@ namespace Weather
         public string Pressure { get; private set; }
         public string WeatherType { get; private set; }
 
-        public string[] WeekTemperature { get; private set; } = new string[6];
-        public string[] WeekFeel { get; private set; } = new string[6];
-        public string[] WeekWind { get; private set; } = new string[6];
-        public string[] WeekHumidity { get; private set; } = new string[6];
-        public string[] WeekPressure { get; private set; } = new string[6];
-        public string[] WeekWeatherType { get; private set; } = new string[6];
+        public string[] WeekTemperature { get; private set; } = new string[DAYS];
+        public string[] WeekFeel { get; private set; } = new string[DAYS];
+        public string[] WeekWind { get; private set; } = new string[DAYS];
+        public string[] WeekHumidity { get; private set; } = new string[DAYS];
+        public string[] WeekPressure { get; private set; } = new string[DAYS];
+        public string[] WeekWeatherType { get; private set; } = new string[DAYS];
 
         public void GetWeekWeatherFromServer()
         {
-            string temperature_symbol = s_TempSymbol;
-            string wind_symbol = s_WindSymbol;
-
-            int deg = 0;
-
-            int k = 0; //switch coefficient for loop breaking
-
-            SetCity(WeatherWindowState.Week);
+            SetCityLink(WeatherWindowState.Week);
 
             try
             {
-                using (DataSet ds = new DataSet())
+                XmlElement root = _doc.DocumentElement;
+
+                if (root != null)
                 {
-                    ds.ReadXml(_link);
+                    XmlWeekWeatherParser(root, DAYS, out int deg);
 
-                    for (int i = 0; i < 6; i++)
+                    SetWindDirection(deg);
+                }
+            } catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        public void GetCurrentWeatherFromServer()
+        {
+            float tmpTemperature = 0;
+            float tmpWindSpeed = 0;
+
+            int deg = 0;
+
+            double feel = 0;
+
+            SetCityLink(WeatherWindowState.Current);
+
+            try
+            {
+                XmlElement root = _doc.DocumentElement;
+
+                if (root != null)
+                {
+                    foreach (XmlNode item in root)
                     {
-                        for (int j = 2 + k; j < 14; j+=2)
+                        if (item.Name.Equals("weather"))
                         {
-                            deg = int.Parse(ds.Tables[2].Rows[j][8].ToString().Replace('.', ','));
-
-                            _minTemp = float.Parse(ds.Tables[2].Rows[j][3].ToString().Replace('.', ','));
-                            _maxTemp = float.Parse(ds.Tables[2].Rows[j+1][4].ToString().Replace('.', ','));
-
-                            _minFeelTemp = float.Parse(ds.Tables[2].Rows[j][16].ToString().Replace('.', ','));
-                            _maxFeelTemp = float.Parse(ds.Tables[2].Rows[j+1][17].ToString().Replace('.', ','));
-
-                            _minWindSpeed = float.Parse(ds.Tables[2].Rows[j][5].ToString().Replace('.', ','));
-                            _maxWindSpeed = float.Parse(ds.Tables[2].Rows[j + 1][6].ToString().Replace('.', ','));
-
-                            _minHumidity = int.Parse(ds.Tables[2].Rows[j][14].ToString());
-                            _maxHumidity = int.Parse(ds.Tables[2].Rows[j + 1][15].ToString());
-
-                            _minPressure = int.Parse(ds.Tables[2].Rows[j][12].ToString());
-                            _maxPressure = int.Parse(ds.Tables[2].Rows[j + 1][13].ToString());
-
-                            SwitchMinMaxValues();
-
-                            WeekTemperature[i] = $"{Math.Round(_minTemp)}/{Math.Round(_maxTemp)}{temperature_symbol}".Replace(',', '.');
-                            WeekFeel[i] = $"{Math.Round(_minFeelTemp)}/{Math.Round(_maxFeelTemp)}{temperature_symbol}".Replace(',', '.');
-                            WeekWind[i] = $"{Math.Round(_minWindSpeed)}/{Math.Round(_maxWindSpeed)} {wind_symbol} {_windDirection}";
-                            WeekHumidity[i] = $"{_minHumidity}/{_maxHumidity} %";
-                            WeekPressure[i] = $"{_minPressure}/{_maxPressure} mmHg";
-                            WeekWeatherType[i] = ds.Tables[2].Rows[j][20].ToString();
-
-                            k += 2;
-
-                            break;
+                            foreach (XmlNode subitem in item.ChildNodes[0])
+                            {
+                                switch (subitem.Name)
+                                {
+                                    case "temperature":
+                                        tmpTemperature = float.Parse(subitem.ChildNodes[0].InnerText.Replace('.', ','));
+                                        Temperature = $"{Math.Round(tmpTemperature)}{temperature_symbol}";
+                                        break;
+                                    case "wind_speed":
+                                        tmpWindSpeed = float.Parse(subitem.ChildNodes[0].InnerText.Replace('.', ','));
+                                        break;
+                                    case "pressure":
+                                        Pressure = $"{Convert.ToInt32(subitem.ChildNodes[0].InnerText)} mmHg";
+                                        break;
+                                    case "humidity":
+                                        Humidity = $"{Convert.ToInt32(subitem.ChildNodes[0].InnerText)} %";
+                                        break;
+                                    case "cloudness_str":
+                                        WeatherType = subitem.InnerText;
+                                        break;
+                                    case "wind_direction_degr":
+                                        deg = int.Parse(subitem.ChildNodes[0].InnerText);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
                         }
                     }
-
-                    deg = int.Parse(ds.Tables[2].Rows[0][8].ToString().Replace('.', ','));
-
-                    _minTemp = float.Parse(ds.Tables[2].Rows[0][3].ToString().Replace('.', ','));
-                    _maxTemp = float.Parse(ds.Tables[2].Rows[1][4].ToString().Replace('.', ','));
-
-                    _minFeelTemp = float.Parse(ds.Tables[2].Rows[0][16].ToString().Replace('.', ','));
-                    _maxFeelTemp = float.Parse(ds.Tables[2].Rows[1][17].ToString().Replace('.', ','));
-
-                    _minWindSpeed = float.Parse(ds.Tables[2].Rows[0][5].ToString().Replace('.', ','));
-                    _maxWindSpeed = float.Parse(ds.Tables[2].Rows[1][6].ToString().Replace('.', ','));
-
-                    _minHumidity = int.Parse(ds.Tables[2].Rows[0][14].ToString());
-                    _maxHumidity = int.Parse(ds.Tables[2].Rows[1][15].ToString());
-
-                    _minPressure = int.Parse(ds.Tables[2].Rows[0][12].ToString());
-                    _maxPressure = int.Parse(ds.Tables[2].Rows[1][13].ToString());
-
-                    WeatherType = ds.Tables[2].Rows[0][20].ToString();
                 }
 
+                feel = 13.12f + 0.6215f * tmpTemperature - 11.37f * Math.Pow(1.5f * tmpWindSpeed, 0.16f) + 0.3965 * tmpTemperature * Math.Pow(1.5f * tmpWindSpeed, 0.16f);
+
+                Feel = $"{Math.Round(feel)}{temperature_symbol}";
+
                 SetWindDirection(deg);
+
+                Wind = $"{tmpWindSpeed} {wind_symbol} {_windDirection}";
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void XmlWeekWeatherParser(XmlElement root, short daysCount, out int deg)
+        {
+            int k = daysCount == 1 ? -2 : 0;
+            int maxVal = daysCount == 1 ? 1 : daysCount * 2;
+
+            deg = 0;
+
+            for (int i = 0; i < daysCount; i++)
+            {
+                for (int j = k + 2; j < maxVal; j++)
+                {
+                    foreach (XmlNode item in root)
+                    {
+                        if (item.Name.Equals("forecast"))
+                        {
+                            foreach (XmlNode subitem in item.ChildNodes[i * 2])
+                            {
+                                switch (subitem.Name)
+                                {
+                                    case "min_temperature":
+                                        _minTemp = float.Parse(subitem.ChildNodes[0].InnerText.Replace('.', ','));
+                                        break;
+                                    case "max_temperature":
+                                        _maxTemp = float.Parse(subitem.ChildNodes[0].InnerText.Replace('.', ','));
+                                        break;
+                                    case "min_wind_speed":
+                                        _minWindSpeed = float.Parse(subitem.ChildNodes[0].InnerText.Replace('.', ','));
+                                        break;
+                                    case "max_wind_speed":
+                                        _maxWindSpeed = float.Parse(subitem.ChildNodes[0].InnerText.Replace('.', ','));
+                                        break;
+                                    case "min_pressure":
+                                        _minPressure = Convert.ToInt32(subitem.ChildNodes[0].Value);
+                                        break;
+                                    case "max_pressure":
+                                        _maxPressure = Convert.ToInt32(subitem.ChildNodes[0].Value);
+                                        break;
+                                    case "min_humidity":
+                                        _minHumidity = Convert.ToInt32(subitem.ChildNodes[0].Value);
+                                        break;
+                                    case "max_humidity":
+                                        _maxHumidity = Convert.ToInt32(subitem.ChildNodes[0].Value);
+                                        break;
+                                    case "min_feeled_temperature":
+                                        _minFeelTemp = float.Parse(subitem.ChildNodes[0].InnerText.Replace('.', ','));
+                                        break;
+                                    case "max_feeled_temperature":
+                                        _maxFeelTemp = float.Parse(subitem.ChildNodes[0].InnerText.Replace('.', ','));
+                                        break;
+                                    case "text":
+                                        _weatherType = subitem.ChildNodes[0].Value;
+                                        break;
+                                    case "wind_direction_degr":
+                                        deg = Convert.ToInt32(subitem.ChildNodes[0].Value);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                }
 
                 if (!isCelsius)
                 {
                     _minTemp = _minTemp * 1.8f + 32;
                     _maxTemp = _maxTemp * 1.8f + 32;
-                }
 
-                if (!isCelsius)
-                {
                     _minFeelTemp = _minTemp * 1.8f + 32;
                     _maxFeelTemp = _maxTemp * 1.8f + 32;
                 }
 
                 if (!isMetersSeconds)
                 {
-                    _minWindSpeed = _minWindSpeed * MetersToMilesCoefficient;
-                    _maxWindSpeed = _maxWindSpeed * MetersToMilesCoefficient;
+                    _minWindSpeed *= MetersToMilesCoefficient;
+                    _maxWindSpeed *= MetersToMilesCoefficient;
                 }
 
                 SwitchMinMaxValues();
 
-                Temperature = $"{Math.Round(_minTemp)}/{Math.Round(_maxTemp)}{temperature_symbol}".Replace(',', '.');
-                Feel = $"{Math.Round(_minFeelTemp)}/{Math.Round(_maxFeelTemp)}{temperature_symbol}".Replace(',', '.');
-                Wind = $"{Math.Round(_minWindSpeed)}/{Math.Round(_maxWindSpeed)} {wind_symbol} {_windDirection}";
-                Humidity = $"{_minHumidity}/{_maxHumidity} %";
-                Pressure = $"{_minPressure}/{_maxPressure} mmHg";                
-            } catch (Exception e) {
-                MessageBox.Show(e.Message);
+                WeekTemperature[i] = $"{Math.Round(_minTemp)}/{Math.Round(_maxTemp)}{temperature_symbol}".Replace(',', '.');
+                WeekFeel[i] = $"{Math.Round(_minFeelTemp)}/{Math.Round(_maxFeelTemp)}{temperature_symbol}".Replace(',', '.');
+                WeekWind[i] = $"{Math.Round(_minWindSpeed)}/{Math.Round(_maxWindSpeed)} {wind_symbol} {_windDirection}";
+                WeekHumidity[i] = $"{_minHumidity}/{_maxHumidity} %";
+                WeekPressure[i] = $"{_minPressure}/{_maxPressure} mmHg";
+                WeekWeatherType[i] = _weatherType;
             }
         }
 
-        public void GetCurrentWeatherFromServer()
-        {
-            string temperature_symbol = s_TempSymbol;
-            string wind_symbol = s_WindSymbol;
-
-            int deg = 0;
-
-            double feel = 0;
-
-            SetCity(WeatherWindowState.Current);
-
-            int diff = s_SelectedLocation.Equals("Volgograd") ? 1 : 0; //coefficient for difference in XML file.
-
-            
-                using (DataSet ds = new DataSet())
-                {
-                    ds.ReadXml(_link);
-
-                    deg = int.Parse(ds.Tables[2].Rows[0][9 + diff].ToString());
-
-                    SetWindDirection(deg);
-
-                    feel = 13.12f + 0.6215f * double.Parse(ds.Tables[2].Rows[0][2].ToString().Replace('.', ',')) - 11.37f * Math.Pow(1.5f * double.Parse(ds.Tables[2].Rows[0][7].ToString().Replace('.', ',')), 0.16f) + 0.3965 * double.Parse(ds.Tables[2].Rows[0][2].ToString().Replace('.', ',')) * Math.Pow(1.5f * double.Parse(ds.Tables[2].Rows[0][7].ToString().Replace('.', ',')), 0.16f); 
-
-                    Temperature = $"{Math.Round(float.Parse(ds.Tables[2].Rows[0][2].ToString().Replace('.', ',')))}{temperature_symbol}";
-                    Feel = $"{Math.Round(feel)}{temperature_symbol}";
-                    Wind = $"{ds.Tables[2].Rows[0][7]} {wind_symbol} {_windDirection}";
-                    Humidity = $"{ds.Tables[2].Rows[0][10+diff]} %";
-                    Pressure = $"{ds.Tables[2].Rows[0][5]} mmHg";
-                    WeatherType = $"{ds.Tables[2].Rows[0][27]}";
-                }                
-            
-        }
-
-        private void SetCity(WeatherWindowState state)
+        private void SetCityLink(WeatherWindowState state)
         {
             switch (s_SelectedLocation)
             {
@@ -216,6 +279,8 @@ namespace Weather
                 default:
                     break;
             }
+
+            _doc.Load(_link);
         }
 
         private void SetWindDirection(int deg)
@@ -223,64 +288,64 @@ namespace Weather
             switch (deg)
             {
                 case 0:
-                    _windDirection = N;
+                    _windDirection = North;
                     break;
                 case 45:
-                    _windDirection = N + E;
+                    _windDirection = North + East;
                     break;
                 case 90:
-                    _windDirection = E;
+                    _windDirection = East;
                     break;
                 case 135:
-                    _windDirection = S + E;
+                    _windDirection = South + East;
                     break;
                 case 180:
-                    _windDirection = S;
+                    _windDirection = South;
                     break;
                 case 225:
-                    _windDirection = S + W;
+                    _windDirection = South + West;
                     break;
                 case 270:
-                    _windDirection = W;
+                    _windDirection = West;
                     break;
                 case 315:
-                    _windDirection = N + W;
+                    _windDirection = North + West;
                     break;
                 case 360:
-                    _windDirection = N;
+                    _windDirection = North;
                     break;
                 default:
                     if (deg > 0 && deg < 45)
                     {
-                        _windDirection = N + N + E;
+                        _windDirection = North + North + East;
                     }
                     else if (deg > 45 && deg < 90)
                     {
-                        _windDirection = E + N + E;
+                        _windDirection = East + North + East;
                     }
                     else if (deg > 90 && deg < 135)
                     {
-                        _windDirection = E + S + E;
+                        _windDirection = East + South + East;
                     }
                     else if (deg > 135 && deg < 180)
                     {
-                        _windDirection= S + S + E;
+                        _windDirection= South + South + East;
                     }
                     else if (deg > 180 && deg < 225)
                     {
-                        _windDirection= S + S + W;
+                        _windDirection= South + South + West;
                     }
                     else if (deg > 225 && deg < 270)
                     {
-                        _windDirection= W + S + W;
+                        _windDirection= West + South + West;
                     }
                     else if (deg > 270 && deg < 315)
                     {
-                        _windDirection= W + N + W;
+                        _windDirection= West + North + West;
                     }
                     else if (deg > 315 && deg < 360)
                     {
-                        _windDirection= N + N + W;
+                        _windDirection= North + North + West;
                     }
                     break;
             }
