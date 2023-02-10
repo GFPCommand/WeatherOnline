@@ -48,16 +48,16 @@ namespace Weather
             if ((month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) && dayNow > 31)
             {
                 month++;
-                dayNow = dayNow + dayDiff - 31;
+                dayNow -= 31;
             } 
             else if ((month == 4 || month == 6 || month == 9 || month == 11) && dayNow > 30)
             {
                 month++;
-                dayNow = dayNow + dayDiff - 30;
+                dayNow -= 30;
             } else if (month == 2 && dayNow > 28)
             {
                 month++;
-                dayNow= dayNow + dayDiff - 28;
+                dayNow -= 28;
             }
 
             _dayLabel = new Label
